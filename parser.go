@@ -8,7 +8,20 @@ type BucketsParser struct {
 	rd *bufio.Reader
 }
 
-func (p BucketsParser) NextNode() *BucketsNode {
+const (
+	NullRune           = '\uFFFD'
+	OpenBracketRune    = '{'
+	CloseBracketRune   = '}'
+	QuoteRune          = '"'
+	SpaceRune          = ' '
+	CommaRune          = ','
+	NewLineRune        = '\n'
+	CarriageReturnRune = '\r'
+)
+
+var SpaceRunes = []rune(" \n\r\t")
+
+func (p BucketsParser) NextNode() BucketsNode {
 
 	textNextNode := p.nextNodeText()
 
@@ -16,17 +29,30 @@ func (p BucketsParser) NextNode() *BucketsNode {
 		return nil
 	}
 
-	node := ParseBlock(textNextNode)
-	return &node
+	node := parseBlock(textNextNode)
+	return node
 
 }
 
-func (p BucketsParser) nextNodeText() string {
+func (p BucketsParser) ReadAllNodes() BucketNodes {
+
+	var nodes BucketNodes
+
+	for node := p.NextNode(); node != nil; node = p.NextNode() {
+
+		nodes = append(nodes, node)
+
+	}
+
+	return nodes
+}
+
+func (p BucketsParser) nextNodeText() []rune {
 
 	var (
 		started                 bool
 		index, quotes, brackets int
-		nodeText                string
+		nodeText                []rune
 	)
 
 	endIndex := -1
@@ -39,17 +65,17 @@ func (p BucketsParser) nextNodeText() string {
 			return nodeText
 		}
 
-		if !started && r == '{' {
+		if !started && r == OpenBracketRune {
 			started = true
 		}
 
 		if started {
-			nodeText += string(r)
+			nodeText = append(nodeText, r)
 		} else {
 			continue
 		}
 
-		endIndex = GetNodeEndIndex(nodeText, &index, &quotes, &brackets)
+		endIndex = getNodeEndIndex(nodeText, &index, &quotes, &brackets)
 
 		if endIndex != -1 {
 			break
@@ -61,13 +87,13 @@ func (p BucketsParser) nextNodeText() string {
 
 }
 
-func GetNodeEndIndex(text string, index, quotes, brackets *int) int {
+func getNodeEndIndex(text []rune, index, quotes, brackets *int) int {
 
 	startIdx := *index
 
 	for *index < len(text) {
 
-		prevChar := uint8(0)
+		prevChar := NullRune
 
 		if *index > startIdx {
 			prevChar = text[*index-1]
@@ -75,9 +101,9 @@ func GetNodeEndIndex(text string, index, quotes, brackets *int) int {
 
 		curChar := text[*index]
 
-		if prevChar == ',' && curChar == '"' {
+		if prevChar == CommaRune && curChar == QuoteRune {
 
-			textValueEndIndex := GetTextValueEndIndex(text, *index)
+			textValueEndIndex := getTextValueEndIndex(text, *index)
 
 			if textValueEndIndex == -1 {
 				*index = textValueEndIndex
@@ -90,11 +116,11 @@ func GetNodeEndIndex(text string, index, quotes, brackets *int) int {
 		}
 
 		switch curChar {
-		case '"':
+		case QuoteRune:
 			*quotes++
-		case '{':
+		case OpenBracketRune:
 			*brackets++
-		case '}':
+		case CloseBracketRune:
 			*brackets--
 		}
 		if *brackets == 0 && (*quotes == 0 || (*quotes != 0 && (*quotes%2) == 0)) {
@@ -107,11 +133,11 @@ func GetNodeEndIndex(text string, index, quotes, brackets *int) int {
 	return -1
 }
 
-func GetValueEndIndex(text string, idx int) int {
+func getValueEndIndex(text []rune, idx int) int {
 
 	for i := idx; i < len(text); i++ {
 
-		if c := text[i]; c == ',' || c == '}' {
+		if c := text[i]; c == CommaRune || c == CloseBracketRune {
 			return i
 		}
 	}
@@ -119,25 +145,25 @@ func GetValueEndIndex(text string, idx int) int {
 	return -1
 }
 
-func GetTextValueEndIndex(text string, idx int) int {
+func getTextValueEndIndex(text []rune, idx int) int {
 
 	var quotes int
 
 	for i := idx; i < len(text); i++ {
 
 		curChar := text[i]
-		nextChar := uint8(0)
+		nextChar := NullRune
 
 		if len(text) > i+1 {
 			nextChar = text[i+1]
 		}
 
-		if curChar == '"' {
+		if curChar == QuoteRune {
 			quotes++
 		}
 
-		if curChar == '"' &&
-			(nextChar == ',' || nextChar == '}') &&
+		if curChar == QuoteRune &&
+			(nextChar == CommaRune || nextChar == CloseBracketRune) &&
 			(quotes == 0 || quotes%2 == 0) {
 			return i
 		}
@@ -146,9 +172,9 @@ func GetTextValueEndIndex(text string, idx int) int {
 	return -1
 }
 
-func ParseBlock(text string, startEndIdx ...int) BucketsNode {
+func parseBlock(text []rune, startEndIdx ...int) BucketsNode {
 
-	node := BucketsNode{}
+	node := bucketsNode{}
 
 	startIdx := 0
 	endIdx := -1
@@ -164,10 +190,10 @@ func ParseBlock(text string, startEndIdx ...int) BucketsNode {
 		endIdx = len(text) - 1
 	}
 
-	if text[startIdx] == '{' {
+	if text[startIdx] == OpenBracketRune {
 		startIdx++
 	}
-	if text[endIdx] == '}' {
+	if text[endIdx] == CloseBracketRune {
 		endIdx--
 	}
 
@@ -177,14 +203,14 @@ func ParseBlock(text string, startEndIdx ...int) BucketsNode {
 
 		switch {
 
-		case curChar == '"':
+		case curChar == QuoteRune:
 
-			valueEndIndex := GetTextValueEndIndex(text, i)
-			value := text[i : valueEndIndex-1]
-			node.Nodes = append(node.Nodes, NewValueNode(value))
+			valueEndIndex := getTextValueEndIndex(text, i)
+			value := text[i+1 : valueEndIndex]
+			node.Nodes = append(node.Nodes, NewValueNode(string(value)))
 			i = valueEndIndex
 
-		case curChar == '{':
+		case curChar == OpenBracketRune:
 
 			var (
 				quotes   int
@@ -194,19 +220,19 @@ func ParseBlock(text string, startEndIdx ...int) BucketsNode {
 
 			idx = i
 
-			valueEndIndex := GetNodeEndIndex(text, &idx, &quotes, &brackets)
-			blockText := text[i+1 : valueEndIndex]
-			childNode := ParseBlock(blockText)
+			valueEndIndex := getNodeEndIndex(text, &idx, &quotes, &brackets)
+			//blockText := text[i+1 : valueEndIndex]
+			childNode := parseBlock(text, i, valueEndIndex)
 			node.Nodes = append(node.Nodes, childNode)
 			i = valueEndIndex
-		case curChar != '"' &&
-			curChar != '}' &&
-			curChar != ',' &&
-			curChar != '\n' &&
-			curChar != ' ':
+		case curChar != QuoteRune &&
+			curChar != CloseBracketRune &&
+			curChar != CommaRune &&
+			!isSpaceRune(curChar) &&
+			curChar != SpaceRune:
 
-			valueEndIndex := GetValueEndIndex(text, i)
-			node.Nodes = append(node.Nodes, NewValueNode(text[i:valueEndIndex]))
+			valueEndIndex := getValueEndIndex(text, i)
+			node.Nodes = append(node.Nodes, NewValueNode(string(text[i:valueEndIndex])))
 			i = valueEndIndex
 		}
 
@@ -214,4 +240,15 @@ func ParseBlock(text string, startEndIdx ...int) BucketsNode {
 
 	return node
 
+}
+
+func isSpaceRune(r rune) bool {
+
+	for _, spaceRune := range SpaceRunes {
+		if r == spaceRune {
+			return true
+		}
+	}
+
+	return false
 }

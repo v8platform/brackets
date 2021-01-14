@@ -1,56 +1,26 @@
 package raw_parser
 
 import (
+	"errors"
 	"fmt"
-	"github.com/xelaj/go-dry"
+	"strconv"
 	"strings"
 )
 
-type BucketItem interface {
-	Get(idx int) (BucketItem, bool)
-	Len() int
-	GetString() string
-	Items() ([]BucketItem, bool)
+type BucketsNode interface {
+	GetNode(address ...int) (BucketsNode, error)
+
 	String() string
+	Int() int
+	Bool() bool
+	Float64() float64
 }
 
-type Bucket []BucketItem
+var ErrNodeAddress = errors.New("address node is broken")
 
-func (b Bucket) Get(idx int) (interface{}, bool) {
+type BucketNodes []BucketsNode
 
-	return b.GetItem(idx)
-}
-
-func (b Bucket) GetItem(idx int) (BucketItem, bool) {
-
-	if idx < 0 || b.Len() <= idx {
-		return nil, false
-	}
-
-	return b[idx], true
-
-}
-
-func (b Bucket) Len() int {
-	return len(b)
-}
-
-type arrayItem []BucketItem
-
-func (b arrayItem) Get(idx int) (BucketItem, bool) {
-
-	if idx < 0 || b.Len() <= idx {
-		return nil, false
-	}
-
-	return b[idx], true
-
-}
-func (b arrayItem) GetString() string {
-	return b.String()
-}
-
-func (b arrayItem) String() string {
+func (b BucketNodes) String() string {
 
 	var strs []string
 
@@ -63,57 +33,32 @@ func (b arrayItem) String() string {
 	return fmt.Sprintf("{%s}", val)
 }
 
-func (b arrayItem) Len() int {
-	return len(b)
-}
-
-func (b arrayItem) Items() ([]BucketItem, bool) {
-	return []BucketItem{b}, true
-}
-
-type stringItem string
-
-func (b stringItem) Get(_ int) (BucketItem, bool) {
-	return b, true
-}
-
-func (b stringItem) GetString() string {
-	return b.String()
-}
-
-func (b stringItem) Len() int {
-	return 1
-}
-
-func (b stringItem) String() string {
-	return string(b)
-}
-
-func (b stringItem) Items() ([]BucketItem, bool) {
-	return []BucketItem{b}, true
-}
-
-type BucketsNode struct {
+type bucketsNode struct {
 	Text string
 
-	Nodes []BucketsNode
+	Nodes BucketNodes
 	//Count int
 
 	valueNode bool
 }
 
-func (b BucketsNode) GetNode(address ...int) BucketsNode {
+func (b bucketsNode) GetNode(address ...int) (BucketsNode, error) {
 
 	currentNode := b
 
 	for i, _ := range address {
-		currentNode = currentNode.Nodes[address[i]]
+
+		if len(currentNode.Nodes) <= address[i] {
+			return nil, ErrNodeAddress
+		}
+
+		currentNode = currentNode.Nodes[address[i]].(bucketsNode)
 	}
 
-	return currentNode
+	return currentNode, nil
 }
 
-func (b BucketsNode) String() string {
+func (b bucketsNode) String() string {
 
 	if b.valueNode {
 		return b.Text
@@ -130,32 +75,32 @@ func (b BucketsNode) String() string {
 	return fmt.Sprintf("{%s}", val)
 }
 
-func (b BucketsNode) Int() int {
-
-	return dry.StringToInt(b.Text)
+func (b bucketsNode) Int() int {
+	i, _ := strconv.ParseInt(b.Text, 10, 64)
+	return int(i)
 }
 
-func (b BucketsNode) Bool() bool {
+func (b bucketsNode) Bool() bool {
 
-	return dry.StringToBool(b.Text)
+	val, _ := strconv.ParseBool(b.Text)
+	return val
 }
 
-func (b BucketsNode) Float64() float64 {
+func (b bucketsNode) Float64() float64 {
 
-	return dry.StringToFloat(b.Text)
+	f, _ := strconv.ParseFloat(b.Text, 64)
+	return f
 }
 
-func NewValueNode(value string) BucketsNode {
+func NewValueNode(value string) bucketsNode {
 
-	return BucketsNode{
+	return bucketsNode{
 		Text:      value,
 		valueNode: true,
 	}
 }
 
-func NewNode() BucketsNode {
+func NewNode() bucketsNode {
 
-	return BucketsNode{
-		valueNode: false,
-	}
+	return bucketsNode{}
 }
