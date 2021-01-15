@@ -2,6 +2,8 @@ package brackets
 
 import (
 	"bufio"
+	"log"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -112,6 +114,42 @@ func TestBucketsParser_ReadAllNodes(t *testing.T) {
 			}
 			if got := p.ReadAllNodes(); !reflect.DeepEqual(len(got), tt.want) {
 				t.Errorf("ReadAllNodes() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBucketsParser_ReadAllNodes_file(t *testing.T) {
+
+	tests := []struct {
+		name string
+		file string
+		want int
+	}{
+		{
+			"repository report",
+			"./report.mxl",
+			1,
+		},
+		{
+			"event log",
+			"./20200412130000.lgp",
+			5,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			file, err := os.OpenFile(tt.file, os.O_RDONLY, 0644)
+
+			if err != nil {
+				log.Panicln(err)
+			}
+
+			p := NewParser(file)
+
+			if got := p.ReadAllNodes(); !reflect.DeepEqual(len(got), tt.want) {
+				t.Errorf("ReadAllNodes() = %v, want %v", len(got), tt.want)
 			}
 		})
 	}
