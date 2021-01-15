@@ -7,17 +7,37 @@ import (
 	"strings"
 )
 
+// Node интерфес для работы с нодой
+// 	Нода представляет собой структуру типа:
+//
+//	{
+//		0,
+//      {0,0},
+//		"Text",
+//		{"text", 0}
+//	}
+//
 type Node interface {
+
+	// GetNode получение вложенных нов по их адресу в массиве норд
 	GetNode(address ...int) (Node, error)
 
+	// String получение строкового значение ноды
+	//	Для нод без вложенных нод выводиться их значение
+	//	Для всех остальных выводиться строковое представление ноды
 	String() string
+
+	// Int получение числового значение ноды
 	Int() int
+	// Bool получение булевного значение ноды
 	Bool() bool
+	// Int получение числового с запятой значение ноды
 	Float64() float64
 }
 
 var ErrNodeAddress = errors.New("address node is broken")
 
+// Nodes Массив Node с функцией String()
 type Nodes []Node
 
 func (b Nodes) String() string {
