@@ -8,7 +8,7 @@ import (
 func Test_bucketsNode_GetNode(t *testing.T) {
 	type fields struct {
 		Text      string
-		Nodes     BucketNodes
+		Nodes     BracketNodes
 		valueNode bool
 	}
 	type args struct {
@@ -18,17 +18,17 @@ func Test_bucketsNode_GetNode(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    BucketsNode
+		want    BracketsNode
 		wantErr bool
 	}{
 		{
 			"simple",
 			fields{
-				Nodes: BucketNodes{
-					NewValueNode("0"),
-					bucketsNode{
-						Nodes: BucketNodes{
-							NewValueNode("1"),
+				Nodes: BracketNodes{
+					newValueNode("0"),
+					bracketsNode{
+						Nodes: BracketNodes{
+							newValueNode("1"),
 						},
 					},
 				},
@@ -36,17 +36,17 @@ func Test_bucketsNode_GetNode(t *testing.T) {
 			args{
 				address: []int{1, 0},
 			},
-			NewValueNode("1"),
+			newValueNode("1"),
 			false,
 		},
 		{
 			"error",
 			fields{
-				Nodes: BucketNodes{
-					NewValueNode("0"),
-					bucketsNode{
-						Nodes: BucketNodes{
-							NewValueNode("1"),
+				Nodes: BracketNodes{
+					newValueNode("0"),
+					bracketsNode{
+						Nodes: BracketNodes{
+							newValueNode("1"),
 						},
 					},
 				},
@@ -60,7 +60,7 @@ func Test_bucketsNode_GetNode(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := bucketsNode{
+			b := bracketsNode{
 				Text:      tt.fields.Text,
 				Nodes:     tt.fields.Nodes,
 				valueNode: tt.fields.valueNode,

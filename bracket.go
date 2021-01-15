@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-type BucketsNode interface {
-	GetNode(address ...int) (BucketsNode, error)
+type BracketsNode interface {
+	GetNode(address ...int) (BracketsNode, error)
 
 	String() string
 	Int() int
@@ -18,9 +18,9 @@ type BucketsNode interface {
 
 var ErrNodeAddress = errors.New("address node is broken")
 
-type BucketNodes []BucketsNode
+type BracketNodes []BracketsNode
 
-func (b BucketNodes) String() string {
+func (b BracketNodes) String() string {
 
 	var strs []string
 
@@ -33,16 +33,16 @@ func (b BucketNodes) String() string {
 	return fmt.Sprintf("{%s}", val)
 }
 
-type bucketsNode struct {
+type bracketsNode struct {
 	Text string
 
-	Nodes BucketNodes
+	Nodes BracketNodes
 	//Count int
 
 	valueNode bool
 }
 
-func (b bucketsNode) GetNode(address ...int) (BucketsNode, error) {
+func (b bracketsNode) GetNode(address ...int) (BracketsNode, error) {
 
 	currentNode := b
 
@@ -52,13 +52,13 @@ func (b bucketsNode) GetNode(address ...int) (BucketsNode, error) {
 			return nil, ErrNodeAddress
 		}
 
-		currentNode = currentNode.Nodes[address[i]].(bucketsNode)
+		currentNode = currentNode.Nodes[address[i]].(bracketsNode)
 	}
 
 	return currentNode, nil
 }
 
-func (b bucketsNode) String() string {
+func (b bracketsNode) String() string {
 
 	if b.valueNode {
 		return b.Text
@@ -75,32 +75,27 @@ func (b bucketsNode) String() string {
 	return fmt.Sprintf("{%s}", val)
 }
 
-func (b bucketsNode) Int() int {
+func (b bracketsNode) Int() int {
 	i, _ := strconv.ParseInt(b.Text, 10, 64)
 	return int(i)
 }
 
-func (b bucketsNode) Bool() bool {
+func (b bracketsNode) Bool() bool {
 
 	val, _ := strconv.ParseBool(b.Text)
 	return val
 }
 
-func (b bucketsNode) Float64() float64 {
+func (b bracketsNode) Float64() float64 {
 
 	f, _ := strconv.ParseFloat(b.Text, 64)
 	return f
 }
 
-func NewValueNode(value string) bucketsNode {
+func newValueNode(value string) bracketsNode {
 
-	return bucketsNode{
+	return bracketsNode{
 		Text:      value,
 		valueNode: true,
 	}
-}
-
-func NewNode() bucketsNode {
-
-	return bucketsNode{}
 }

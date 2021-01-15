@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type BucketsParser struct {
+type Parser struct {
 	rd *bufio.Reader
 }
 
@@ -22,13 +22,13 @@ const (
 	spaceRunes         = " \n\r\t"
 )
 
-func NewParser(r io.Reader) *BucketsParser {
-	return &BucketsParser{
+func NewParser(r io.Reader) *Parser {
+	return &Parser{
 		bufio.NewReader(r),
 	}
 }
 
-func (p BucketsParser) NextNode() BucketsNode {
+func (p Parser) NextNode() BracketsNode {
 
 	textNextNode := p.nextNodeText()
 
@@ -41,9 +41,9 @@ func (p BucketsParser) NextNode() BucketsNode {
 
 }
 
-func (p BucketsParser) ReadAllNodes() BucketNodes {
+func (p Parser) ReadAllNodes() BracketNodes {
 
-	var nodes BucketNodes
+	var nodes BracketNodes
 
 	for node := p.NextNode(); node != nil; node = p.NextNode() {
 
@@ -54,7 +54,7 @@ func (p BucketsParser) ReadAllNodes() BucketNodes {
 	return nodes
 }
 
-func (p BucketsParser) nextNodeText() []rune {
+func (p Parser) nextNodeText() []rune {
 
 	var (
 		started                 bool
@@ -179,9 +179,9 @@ func getTextValueEndIndex(text []rune, idx int) int {
 	return -1
 }
 
-func parseBlock(text []rune, startEndIdx ...int) BucketsNode {
+func parseBlock(text []rune, startEndIdx ...int) BracketsNode {
 
-	node := bucketsNode{}
+	node := bracketsNode{}
 
 	startIdx := 0
 	endIdx := -1
@@ -214,7 +214,7 @@ func parseBlock(text []rune, startEndIdx ...int) BucketsNode {
 
 			valueEndIndex := getTextValueEndIndex(text, i)
 			value := text[i+1 : valueEndIndex]
-			node.Nodes = append(node.Nodes, NewValueNode(string(value)))
+			node.Nodes = append(node.Nodes, newValueNode(string(value)))
 			i = valueEndIndex
 
 		case curChar == OpenBracketRune:
@@ -238,7 +238,7 @@ func parseBlock(text []rune, startEndIdx ...int) BucketsNode {
 			curChar != SpaceRune:
 
 			valueEndIndex := getValueEndIndex(text, i)
-			node.Nodes = append(node.Nodes, NewValueNode(string(text[i:valueEndIndex])))
+			node.Nodes = append(node.Nodes, newValueNode(string(text[i:valueEndIndex])))
 			i = valueEndIndex
 		}
 

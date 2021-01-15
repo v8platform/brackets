@@ -1,4 +1,4 @@
-module github.com/khorevaa/raw_parser
+module github.com/v8platform/brackets
 
 go 1.15
 

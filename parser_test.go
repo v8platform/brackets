@@ -22,7 +22,7 @@ func TestBucketsParser_nextNodeText(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := BucketsParser{
+			p := Parser{
 				rd: bufio.NewReader(strings.NewReader(tt.text)),
 			}
 			if got := p.nextNodeText(); string(got) != tt.want {
@@ -36,43 +36,43 @@ func TestBucketsParser_NextNode(t *testing.T) {
 	tests := []struct {
 		name string
 		text string
-		want *bucketsNode
+		want *bracketsNode
 	}{
 		{
 			"simple",
 			"{20200412134348,N,\n{0,0},1,1,1,1,1,I,\"\",0,\n{\"U\"},\"\",1,1,0,1,0,\n{0}\n},\n{20200412134356,N,\n{0,0},1,1,2,2,1,I,\"\",0,\n{\"U\"},\"\",1,1,0,2,0,\n{0}\n},",
-			&bucketsNode{
-				Nodes: BucketNodes{
-					NewValueNode("20200412134348"),
-					NewValueNode("N"),
-					bucketsNode{
-						Nodes: BucketNodes{
-							NewValueNode("0"),
-							NewValueNode("0"),
+			&bracketsNode{
+				Nodes: BracketNodes{
+					newValueNode("20200412134348"),
+					newValueNode("N"),
+					bracketsNode{
+						Nodes: BracketNodes{
+							newValueNode("0"),
+							newValueNode("0"),
 						},
 					},
-					NewValueNode("1"),
-					NewValueNode("1"),
-					NewValueNode("1"),
-					NewValueNode("1"),
-					NewValueNode("1"),
-					NewValueNode("1"),
-					NewValueNode(""),
-					NewValueNode("0"),
-					bucketsNode{
-						Nodes: BucketNodes{
-							NewValueNode("U"),
+					newValueNode("1"),
+					newValueNode("1"),
+					newValueNode("1"),
+					newValueNode("1"),
+					newValueNode("1"),
+					newValueNode("1"),
+					newValueNode(""),
+					newValueNode("0"),
+					bracketsNode{
+						Nodes: BracketNodes{
+							newValueNode("U"),
 						},
 					},
-					NewValueNode(""),
-					NewValueNode("1"),
-					NewValueNode("1"),
-					NewValueNode("0"),
-					NewValueNode("1"),
-					NewValueNode("0"),
-					bucketsNode{
-						Nodes: BucketNodes{
-							NewValueNode("0"),
+					newValueNode(""),
+					newValueNode("1"),
+					newValueNode("1"),
+					newValueNode("0"),
+					newValueNode("1"),
+					newValueNode("0"),
+					bracketsNode{
+						Nodes: BracketNodes{
+							newValueNode("0"),
 						},
 					},
 				},
@@ -82,7 +82,7 @@ func TestBucketsParser_NextNode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := BucketsParser{
+			p := Parser{
 				rd: bufio.NewReader(strings.NewReader(tt.text)),
 			}
 			if got := p.NextNode(); strings.EqualFold(got.String(), tt.want.String()) {
@@ -107,7 +107,7 @@ func TestBucketsParser_ReadAllNodes(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := BucketsParser{
+			p := Parser{
 				rd: bufio.NewReader(strings.NewReader(tt.text)),
 			}
 			if got := p.ReadAllNodes(); !reflect.DeepEqual(len(got), tt.want) {
