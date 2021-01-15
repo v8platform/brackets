@@ -2,6 +2,8 @@ package raw_parser
 
 import (
 	"bufio"
+	"io"
+	"strings"
 )
 
 type BucketsParser struct {
@@ -17,9 +19,14 @@ const (
 	CommaRune          = ','
 	NewLineRune        = '\n'
 	CarriageReturnRune = '\r'
+	spaceRunes         = " \n\r\t"
 )
 
-var SpaceRunes = []rune(" \n\r\t")
+func NewParser(r io.Reader) *BucketsParser {
+	return &BucketsParser{
+		bufio.NewReader(r),
+	}
+}
 
 func (p BucketsParser) NextNode() BucketsNode {
 
@@ -221,7 +228,6 @@ func parseBlock(text []rune, startEndIdx ...int) BucketsNode {
 			idx = i
 
 			valueEndIndex := getNodeEndIndex(text, &idx, &quotes, &brackets)
-			//blockText := text[i+1 : valueEndIndex]
 			childNode := parseBlock(text, i, valueEndIndex)
 			node.Nodes = append(node.Nodes, childNode)
 			i = valueEndIndex
@@ -242,13 +248,14 @@ func parseBlock(text []rune, startEndIdx ...int) BucketsNode {
 
 }
 
+func inSlice(r rune, slice string) bool {
+
+	return strings.ContainsRune(slice, r)
+
+}
+
 func isSpaceRune(r rune) bool {
 
-	for _, spaceRune := range SpaceRunes {
-		if r == spaceRune {
-			return true
-		}
-	}
+	return inSlice(r, spaceRunes)
 
-	return false
 }
