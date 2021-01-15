@@ -1,4 +1,4 @@
-package raw_parser
+package brackets
 
 import (
 	"bufio"
@@ -22,13 +22,15 @@ const (
 	spaceRunes         = " \n\r\t"
 )
 
+// NewParser создает новый парсер для скобко файла
 func NewParser(r io.Reader) *Parser {
 	return &Parser{
 		bufio.NewReader(r),
 	}
 }
 
-func (p Parser) NextNode() BracketsNode {
+// ReadAllNodes выполняет последовательное чтение нод/объектов скобко файла
+func (p Parser) NextNode() Node {
 
 	textNextNode := p.nextNodeText()
 
@@ -41,9 +43,10 @@ func (p Parser) NextNode() BracketsNode {
 
 }
 
-func (p Parser) ReadAllNodes() BracketNodes {
+// ReadAllNodes выполняет чтение всех нод/объектов скобко файла
+func (p Parser) ReadAllNodes() Nodes {
 
-	var nodes BracketNodes
+	var nodes Nodes
 
 	for node := p.NextNode(); node != nil; node = p.NextNode() {
 
@@ -179,7 +182,7 @@ func getTextValueEndIndex(text []rune, idx int) int {
 	return -1
 }
 
-func parseBlock(text []rune, startEndIdx ...int) BracketsNode {
+func parseBlock(text []rune, startEndIdx ...int) Node {
 
 	node := bracketsNode{}
 

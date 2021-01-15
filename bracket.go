@@ -1,4 +1,4 @@
-package raw_parser
+package brackets
 
 import (
 	"errors"
@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-type BracketsNode interface {
-	GetNode(address ...int) (BracketsNode, error)
+type Node interface {
+	GetNode(address ...int) (Node, error)
 
 	String() string
 	Int() int
@@ -18,9 +18,9 @@ type BracketsNode interface {
 
 var ErrNodeAddress = errors.New("address node is broken")
 
-type BracketNodes []BracketsNode
+type Nodes []Node
 
-func (b BracketNodes) String() string {
+func (b Nodes) String() string {
 
 	var strs []string
 
@@ -36,13 +36,13 @@ func (b BracketNodes) String() string {
 type bracketsNode struct {
 	Text string
 
-	Nodes BracketNodes
+	Nodes Nodes
 	//Count int
 
 	valueNode bool
 }
 
-func (b bracketsNode) GetNode(address ...int) (BracketsNode, error) {
+func (b bracketsNode) GetNode(address ...int) (Node, error) {
 
 	currentNode := b
 

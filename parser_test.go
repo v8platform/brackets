@@ -1,4 +1,4 @@
-package raw_parser
+package brackets
 
 import (
 	"bufio"
@@ -42,11 +42,11 @@ func TestBucketsParser_NextNode(t *testing.T) {
 			"simple",
 			"{20200412134348,N,\n{0,0},1,1,1,1,1,I,\"\",0,\n{\"U\"},\"\",1,1,0,1,0,\n{0}\n},\n{20200412134356,N,\n{0,0},1,1,2,2,1,I,\"\",0,\n{\"U\"},\"\",1,1,0,2,0,\n{0}\n},",
 			&bracketsNode{
-				Nodes: BracketNodes{
+				Nodes: Nodes{
 					newValueNode("20200412134348"),
 					newValueNode("N"),
 					bracketsNode{
-						Nodes: BracketNodes{
+						Nodes: Nodes{
 							newValueNode("0"),
 							newValueNode("0"),
 						},
@@ -60,7 +60,7 @@ func TestBucketsParser_NextNode(t *testing.T) {
 					newValueNode(""),
 					newValueNode("0"),
 					bracketsNode{
-						Nodes: BracketNodes{
+						Nodes: Nodes{
 							newValueNode("U"),
 						},
 					},
@@ -71,7 +71,7 @@ func TestBucketsParser_NextNode(t *testing.T) {
 					newValueNode("1"),
 					newValueNode("0"),
 					bracketsNode{
-						Nodes: BracketNodes{
+						Nodes: Nodes{
 							newValueNode("0"),
 						},
 					},

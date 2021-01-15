@@ -1,4 +1,4 @@
-package raw_parser
+package brackets
 
 import (
 	"reflect"
@@ -8,7 +8,7 @@ import (
 func Test_bucketsNode_GetNode(t *testing.T) {
 	type fields struct {
 		Text      string
-		Nodes     BracketNodes
+		Nodes     Nodes
 		valueNode bool
 	}
 	type args struct {
@@ -18,16 +18,16 @@ func Test_bucketsNode_GetNode(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    BracketsNode
+		want    Node
 		wantErr bool
 	}{
 		{
 			"simple",
 			fields{
-				Nodes: BracketNodes{
+				Nodes: Nodes{
 					newValueNode("0"),
 					bracketsNode{
-						Nodes: BracketNodes{
+						Nodes: Nodes{
 							newValueNode("1"),
 						},
 					},
@@ -42,10 +42,10 @@ func Test_bucketsNode_GetNode(t *testing.T) {
 		{
 			"error",
 			fields{
-				Nodes: BracketNodes{
+				Nodes: Nodes{
 					newValueNode("0"),
 					bracketsNode{
-						Nodes: BracketNodes{
+						Nodes: Nodes{
 							newValueNode("1"),
 						},
 					},
