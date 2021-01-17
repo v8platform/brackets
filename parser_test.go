@@ -136,6 +136,11 @@ func TestBucketsParser_ReadAllNodes_file(t *testing.T) {
 			"./20200412130000.lgp",
 			5,
 		},
+		{
+			"multiline log",
+			"./tests/multiline.lgp",
+			5,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
