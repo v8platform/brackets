@@ -32,6 +32,9 @@ type Node interface {
 	String() string
 
 	// Int64 получение числового значение ноды
+	Int(address ...int) int
+
+	// Int64 получение числового значение ноды
 	Int64(address ...int) int64
 	// Bool получение булевного значение ноды
 	Bool(address ...int) bool
@@ -144,6 +147,11 @@ func (b bracketsNode) String() string {
 	val := strings.Join(strs, ",")
 
 	return fmt.Sprintf("{%s}", val)
+}
+
+func (b bracketsNode) Int(address ...int) int {
+
+	return int(b.Int64(address...))
 }
 
 func (b bracketsNode) Int64(address ...int) int64 {
