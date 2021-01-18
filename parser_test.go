@@ -27,7 +27,7 @@ func TestBucketsParser_nextNodeText(t *testing.T) {
 			p := Parser{
 				rd: bufio.NewReader(strings.NewReader(tt.text)),
 			}
-			if got := p.nextNodeText(); string(got) != tt.want {
+			if got, _ := p.nextNodeText(); string(got) != tt.want {
 				t.Errorf("nextNodeText() = %v, want %v", got, tt.want)
 			}
 		})
@@ -87,7 +87,7 @@ func TestBucketsParser_NextNode(t *testing.T) {
 			p := Parser{
 				rd: bufio.NewReader(strings.NewReader(tt.text)),
 			}
-			if got := p.NextNode(); strings.EqualFold(got.String(), tt.want.String()) {
+			if got, _ := p.NextNode(); strings.EqualFold(got.String(), tt.want.String()) {
 				t.Errorf("NextNode() = %v, want %v", got, tt.want)
 			}
 		})
@@ -112,7 +112,7 @@ func TestBucketsParser_ReadAllNodes(t *testing.T) {
 			p := Parser{
 				rd: bufio.NewReader(strings.NewReader(tt.text)),
 			}
-			if got := p.ReadAllNodes(); !reflect.DeepEqual(len(got), tt.want) {
+			if got, _ := p.ReadAllNodes(); !reflect.DeepEqual(len(got), tt.want) {
 				t.Errorf("ReadAllNodes() = %v, want %v", got, tt.want)
 			}
 		})
@@ -148,7 +148,7 @@ func TestBucketsParser_ReadAllNodes_file(t *testing.T) {
 
 			p := NewParser(file)
 
-			if got := p.ReadAllNodes(); !reflect.DeepEqual(len(got), tt.want) {
+			if got, _ := p.ReadAllNodes(); !reflect.DeepEqual(len(got), tt.want) {
 				t.Errorf("ReadAllNodes() = %v, want %v", len(got), tt.want)
 			}
 		})

@@ -58,7 +58,7 @@ type bracketsNode struct {
 
 	Nodes Nodes
 	//Count int
-
+	size      int
 	valueNode bool
 }
 
@@ -117,5 +117,6 @@ func newValueNode(value string) bracketsNode {
 	return bracketsNode{
 		Text:      value,
 		valueNode: true,
+		size:      len([]byte(value)),
 	}
 }
