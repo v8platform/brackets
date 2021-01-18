@@ -15,9 +15,9 @@ func ExampleParser_NextNode_bytes() {
 
 	parser := brackets.NewParser(bytes.NewReader(data))
 
-	for node := parser.NextNode(); node != nil; node = parser.NextNode() {
+	for node, size := parser.NextNode(); node != nil; node, size = parser.NextNode() {
 
-		log.Printf("readed node <%s>: ", node)
+		log.Printf("readed node <%s> size<%d>", node, size)
 
 	}
 
@@ -35,9 +35,9 @@ func ExampleParser_NextNode_file() {
 
 	parser := brackets.NewParser(file)
 
-	for node := parser.NextNode(); node != nil; node = parser.NextNode() {
+	for node, size := parser.NextNode(); node != nil; node, size = parser.NextNode() {
 
-		log.Printf("readed node <%s>", node)
+		log.Printf("readed node <%s> size<%d>", node, size)
 
 	}
 
@@ -48,9 +48,9 @@ func ExampleParser_ReadAllNodes_bytes() {
 	data := []byte("{20200412134348,N,\n{0,0},1,1,1,1,1,I,\"\",0,\n{\"U\"},\"\",1,1,0,1,0,\n{0}\n},\n{20200412134356,N,\n{0,0},1,1,2,2,1,I,\"\",0,\n{\"U\"},\"\",1,1,0,2,0,\n{0}\n},")
 
 	parser := brackets.NewParser(bytes.NewReader(data))
-	nodes := parser.ReadAllNodes()
+	nodes, size := parser.ReadAllNodes()
 
-	log.Printf("readed nodes %d", len(nodes))
+	pp.Println("readed nodes", len(nodes), "size", size)
 	pp.Println(nodes)
 
 }
@@ -67,9 +67,9 @@ func ExampleParser_ReadAllNodes_file() {
 
 	parser := brackets.NewParser(file)
 
-	nodes := parser.ReadAllNodes()
+	nodes, size := parser.ReadAllNodes()
 
-	log.Printf("readed nodes %d", len(nodes))
+	log.Printf("readed nodes %d, size: %d", len(nodes), size)
 	pp.Println(nodes)
 }
 
@@ -80,7 +80,7 @@ func ExampleBracketsNode_GetNode() {
 	// Адрес ноды           0       1   2,0 2,1   ....                11,0
 	parser := brackets.NewParser(bytes.NewReader(data))
 
-	node := parser.NextNode()
+	node, _ := parser.NextNode()
 
 	node0, _ := node.GetNodeE(0)
 	fmt.Printf("node <%s>\n", node0.String()) // 20200412134348

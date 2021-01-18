@@ -30,49 +30,55 @@ func NewParser(r io.Reader) *Parser {
 }
 
 // ReadAllNodes выполняет последовательное чтение нод/объектов скобко файла
-func (p Parser) NextNode() Node {
+func (p Parser) NextNode() (Node, int) {
 
-	textNextNode := p.nextNodeText()
+	textNextNode, size := p.nextNodeText()
 
 	if len(textNextNode) == 0 {
-		return nil
+		return nil, 0
 	}
 
 	node := parseBlock(textNextNode)
-	return node
+	node.size = size
+
+	return node, size
 
 }
 
 // ReadAllNodes выполняет чтение всех нод/объектов скобко файла
-func (p Parser) ReadAllNodes() Nodes {
+func (p Parser) ReadAllNodes() (Nodes, int) {
 
-	var nodes Nodes
+	var (
+		nodes Nodes
+		size  int
+	)
 
-	for node := p.NextNode(); node != nil; node = p.NextNode() {
-
+	for node, s := p.NextNode(); node != nil; node, s = p.NextNode() {
+		size += s
 		nodes = append(nodes, node)
 
 	}
 
-	return nodes
+	return nodes, size
 }
 
-func (p Parser) nextNodeText() []rune {
+func (p Parser) nextNodeText() ([]rune, int) {
 
 	var (
 		started                 bool
 		index, quotes, brackets int
 		nodeText                []rune
+		size                    int
 	)
 
 	endIndex := -1
 
 	for {
 
-		r, _, err := p.rd.ReadRune()
-
+		r, n, err := p.rd.ReadRune()
+		size += n
 		if err != nil {
-			return nodeText
+			return nodeText, size
 		}
 
 		if !started && r == OpenBracketRune {
@@ -93,7 +99,7 @@ func (p Parser) nextNodeText() []rune {
 
 	}
 
-	return nodeText
+	return nodeText, size
 
 }
 
@@ -182,7 +188,7 @@ func getTextValueEndIndex(text []rune, idx int) int {
 	return -1
 }
 
-func parseBlock(text []rune, startEndIdx ...int) Node {
+func parseBlock(text []rune, startEndIdx ...int) bracketsNode {
 
 	node := bracketsNode{}
 

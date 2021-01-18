@@ -81,7 +81,7 @@ func (b Nodes) String() string {
 type bracketsNode struct {
 	Text  string
 	Nodes Nodes
-
+	size      int
 	valueNode bool
 }
 
@@ -158,8 +158,8 @@ func (b bracketsNode) Int64(address ...int) int64 {
 
 	n, err := b.getNode(address)
 	if err != nil ||
-		!b.value() ||
-		len(b.Text) == 0 {
+		!n.value() ||
+		len(n.Text) == 0 {
 		return 0
 	}
 
@@ -171,8 +171,8 @@ func (b bracketsNode) Bool(address ...int) bool {
 
 	n, err := b.getNode(address)
 	if err != nil ||
-		!b.value() ||
-		len(b.Text) == 0 {
+		!n.value() ||
+		len(n.Text) == 0 {
 		return false
 	}
 	val, _ := strconv.ParseBool(n.Text)
@@ -183,8 +183,8 @@ func (b bracketsNode) Float64(address ...int) float64 {
 
 	n, err := b.getNode(address)
 	if err != nil ||
-		!b.value() ||
-		len(b.Text) == 0 {
+		!n.value() ||
+		len(n.Text) == 0 {
 		return 0
 	}
 
@@ -197,6 +197,7 @@ func newValueNode(value string) bracketsNode {
 	return bracketsNode{
 		Text:      value,
 		valueNode: true,
+		size:      len([]byte(value)),
 	}
 }
 
