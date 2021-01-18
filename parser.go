@@ -222,6 +222,10 @@ func parseBlock(text []rune, startEndIdx ...int) bracketsNode {
 		case curChar == QuoteRune:
 
 			valueEndIndex := getTextValueEndIndex(text, i)
+			if valueEndIndex == -1 {
+				return node
+			}
+
 			value := text[i+1 : valueEndIndex]
 			node.Nodes = append(node.Nodes, newValueNode(string(value)))
 			i = valueEndIndex
@@ -237,6 +241,10 @@ func parseBlock(text []rune, startEndIdx ...int) bracketsNode {
 			idx = i
 
 			valueEndIndex := getNodeEndIndex(text, &idx, &quotes, &brackets)
+			if valueEndIndex == -1 {
+				return node
+			}
+
 			childNode := parseBlock(text, i, valueEndIndex)
 			node.Nodes = append(node.Nodes, childNode)
 			i = valueEndIndex
@@ -247,6 +255,9 @@ func parseBlock(text []rune, startEndIdx ...int) bracketsNode {
 			curChar != SpaceRune:
 
 			valueEndIndex := getValueEndIndex(text, i)
+			if valueEndIndex == -1 {
+				return node
+			}
 			node.Nodes = append(node.Nodes, newValueNode(string(text[i:valueEndIndex])))
 			i = valueEndIndex
 		}
