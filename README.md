@@ -58,27 +58,27 @@ func main() {
 
 	node := parser.NextNode()
 
-	node0, _ := node.GetNode(0)
-	fmt.Printf("node <%s>\n", node0.String()) // 20200412134348
+    node0, _ := node.GetNodeE(0)
+    fmt.Printf("node <%s>\n", node0.String()) // 20200412134348
 
-	node1, _ := node.GetNode(1)
-	fmt.Printf("node <%s>\n", node1.String()) // N
+    node1 := node.Get(1)
+    fmt.Printf("node <%s>\n", node1) // N
 
-	node21, _ := node.GetNode(2, 1)
-	fmt.Printf("node <%d>\n", node21.Int()) // {0,13} -> 13
+    node21 := node.Int64(2, 1)
+    fmt.Printf("node <%d>\n", node21) // {0,13} -> 13
 
-	node11, _ := node.GetNode(11)
-	fmt.Printf("node <%s>\n", node11) // {"U"}
+    node11 := node.GetNode(11)
+    fmt.Printf("node <%s>\n", node11) // {"U"}
 
-	_, err := node.GetNode(1, 2) // Отсутствующий адрес ноды
-	fmt.Printf("err <%s>\n", err) // {0,13} -> 13
+    _, err := node.GetNodeE(1, 2) // Отсутствующий адрес ноды
+    fmt.Printf("err <%s>\n", err) // {0,13} -> 13
 
-	// Output:
-	// node <20200412134348>
-	// node <N>
-	// node <13>
-	// node <{U}>
-	// err <address node is broken>
+    // Output:
+    // node <20200412134348>
+    // node <N>
+    // node <13>
+    // node <{U}>
+    // err <address node is broken>
 }
 
 ```

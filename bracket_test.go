@@ -65,7 +65,7 @@ func Test_bucketsNode_GetNode(t *testing.T) {
 				Nodes:     tt.fields.Nodes,
 				valueNode: tt.fields.valueNode,
 			}
-			got, err := b.GetNode(tt.args.address...)
+			got, err := b.GetNodeE(tt.args.address...)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetNode() error = %v, wantErr %v", err, tt.wantErr)
 				return
